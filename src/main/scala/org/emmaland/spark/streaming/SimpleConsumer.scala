@@ -16,10 +16,10 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package org.emmaland
+package org.emmaland.spark.streaming
 
 import org.apache.spark.streaming.{Duration, StreamingContext}
-import org.apache.spark.{SparkContext, SparkConf}
+import org.apache.spark.{SparkConf, SparkContext}
 
 object SimpleConsumer {
 
@@ -33,7 +33,7 @@ object SimpleConsumer {
     val ssc = new StreamingContext(sc, new Duration(2000))
 
     // Create a socket stream that listens on localhost:2222
-    val stream = ssc.socketTextStream("localhost", 2222)
+    val stream = ssc.socketTextStream("arwen.local", 2222)
 
     val parsed = stream.map(t => t.toDouble)
     val result = parsed.reduce(_ + _)

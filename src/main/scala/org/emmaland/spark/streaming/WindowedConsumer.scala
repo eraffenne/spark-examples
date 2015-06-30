@@ -16,41 +16,43 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package org.emmaland
+package org.emmaland.spark.streaming
 
 import org.apache.spark.streaming.{Duration, StreamingContext}
-import org.apache.spark.streaming.StreamingContext._
-import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.{SparkConf, SparkContext}
 
+object WindowedConsumer {
 
-object KafkaConsumer extends App {
-
-  override def main(args: Array[String]) {
+  def main(args: Array[String]) {
 
     val master = if ( args.length == 1) args(0) else "local[2]"
 
-    val config: SparkConf = new SparkConf().setMaster(master).setAppName("KafkaConsumer")
-    val sc: SparkContext = new SparkContext(config)
-    val ssc: StreamingContext = new StreamingContext(sc, new Duration(2000))
+    // Create the streaming context and set checkpointing
+    val conf = new SparkConf().setMaster(master).setAppName("WindowedConsumer")
+    val sc = new SparkContext(conf)
+    val ssc = new StreamingContext(sc, new Duration(2000))
+    ssc.checkpoint("file:///tmp")
 
-    val quorum = "localhost:2181"
-    val group = "Consumers"
-    val topics = Map("test" -> 1)
+    // Create a text socket stream that listens on localhost:2222
+    val stream = ssc.socketTextStream("arwen.local", 2222)
 
-    val stream = KafkaUtils.createStream(ssc, quorum, group, topics)
+    val parsed = stream.map(t => (t.toDouble, 1))
 
-    val pairs = stream.map( t => (t._1, 1))
-    val result = pairs.reduceByKey(_ + _)
+    val result = parsed.reduceByWindow(
+      {(t1: (Double, Int), t2: (Double, Int)) => ( t1._1 + t2._1 , t1._2 + t2._2)},
+      Duration(4000),
+      Duration(2000))
 
-    stream.print()
+    val mean = result.transform( rdd => rdd.map(t => t._1 / t._2) )
+
     result.print()
+    mean.print()
 
-    stream.saveAsTextFiles("file:///tmp/kafka", "stream")
+    result.saveAsTextFiles("file:///tmp/socket", "stream")
 
+    // Start the context
     ssc.start
     ssc.awaitTermination()
-
   }
 
 }

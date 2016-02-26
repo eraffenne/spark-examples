@@ -1,5 +1,5 @@
 /*
- * spark-streaming-examples
+ * spark-examples
  * Copyright (C) 2015 Emmanuelle Raffenne
  *
  * This program is free software: you can redistribute it and/or
@@ -16,7 +16,7 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package org.emmaland.spark.streaming
+package com.example.spark.streaming
 
 import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.streaming.{Duration, StreamingContext}
@@ -47,7 +47,7 @@ object KafkaConsumer extends App {
 
     stream.saveAsTextFiles("file:///tmp/kafka", "stream")
 
-    ssc.start
+    ssc.start()
     ssc.awaitTermination()
 
   }

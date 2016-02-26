@@ -1,5 +1,5 @@
 /*
- * spark-streaming-examples
+ * spark-examples
  * Copyright (C) 2015 Emmanuelle Raffenne
  *
  * This program is free software: you can redistribute it and/or
@@ -16,28 +16,19 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package org.emmaland.spark.streaming
+package com.example.spark.streaming
 
 import org.apache.spark.streaming.twitter.TwitterUtils
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.{SparkContext, SparkConf}
-
-import scala.collection.mutable.HashMap
+import org.apache.spark.{SparkConf, SparkContext}
+import org.emmaland.utils.TwitterCredentials
 
 object TwitterConsumer {
 
     def main(args: Array[String]): Unit = {
 
-        // Important!!!!
-        // Get your key and token from https://apps.twitter.com/
-        // and fill the variables below with your values
-        val consumerKey = ""
-        val consumerSecret = ""
-        val accessToken = ""
-        val accessTokenSecret = ""
-
         // Set credentials for Twitter
-        configureTwitterCredentials(consumerKey, consumerSecret, accessToken, accessTokenSecret)
+        TwitterCredentials.configure()
 
         // Setting needed contexts
         val config: SparkConf = new SparkConf().setMaster("local[4]").setAppName("twitterConsumer")
@@ -54,27 +45,6 @@ object TwitterConsumer {
          * Your code should go here
          * */
 
-    }
-
-    /** Configures the Oauth Credentials for accessing Twitter */
-    def configureTwitterCredentials(consumerKey: String,
-                                    consumerSecret: String,
-                                    accessToken: String,
-                                    accessTokenSecret: String) {
-
-        val configs = new HashMap[String, String] ++= Seq(
-            "consumerKey" -> consumerKey,
-            "consumerSecret" -> consumerSecret,
-            "accessToken" -> accessToken,
-            "accessTokenSecret" -> accessTokenSecret)
-
-        configs.foreach { case (key, value) =>
-            if (value.trim.isEmpty) {
-                throw new Exception("Error setting authentication - value for " + key + " not set")
-            }
-            val fullKey = "twitter4j.oauth." + key
-            System.setProperty(fullKey, value.trim)
-        }
     }
 
 }

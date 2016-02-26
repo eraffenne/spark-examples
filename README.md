@@ -1,3 +1,3 @@
-# spark-streaming-examples
+# spark-examples
 
-Simple examples using Spark Streaming
+Simple examples using Spark

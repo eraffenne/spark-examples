@@ -21,7 +21,7 @@ package com.example.spark.thriftserver
 
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.hive.thriftserver.HiveThriftServer2
-import org.apache.spark.{Logging, SparkContext, SparkConf}
+import org.apache.spark.{Logging, SparkConf, SparkContext}
 
 object SimpleThriftServer extends Logging {
 
@@ -35,14 +35,14 @@ object SimpleThriftServer extends Logging {
 
         HiveThriftServer2.startWithContext(hiveContext)
 
-        val rdd = sc.parallelize( List(1, 2, 3, 4, 5) )
+        val rdd = sc.parallelize(List(1, 2, 3, 4, 5))
         val df = rdd.toDF("numero")
         df.registerTempTable("tabla")
 
         log.info("\n============== hiveContext waiting....\n")
         log.info("Use !connect jdbc:hive2://localhost:10000")
 
-
+        // Esperar conexiones
         hiveContext.wait()
     }
 }
